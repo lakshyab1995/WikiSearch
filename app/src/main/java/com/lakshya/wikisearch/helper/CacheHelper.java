@@ -52,6 +52,10 @@ public class CacheHelper {
 
     public void storeViewedWiki(WikiPageModel wikiPageModel){
         //mRecentViewedWikiSet.add(wikiPageModel);
+        if(readCacheData() != null){
+            Set<Integer> previousWikiIds = readCacheData();
+            mViewedWikiIdList.addAll(previousWikiIds);
+        }
         mViewedWikiIdList.add(wikiPageModel.getWikiPageId());
         Gson gson = new Gson();
         String wikiPageIds = gson.toJson(mViewedWikiIdList);
@@ -85,5 +89,15 @@ public class CacheHelper {
 
     public void setCacheListener(CacheListener cacheListener){
         mCacheListener  = cacheListener;
+    }
+
+    private Set<Integer> readCacheData(){
+        String wikiIds = SharedPrefHelper.with(mContext).get("history","");
+        Type type = new TypeToken<Set<Integer>>() {}.getType();
+        Gson gson = new Gson();
+        if(!TextUtils.isEmpty(wikiIds)){
+            return gson.fromJson(wikiIds, type);
+        }
+        return null;
     }
 }

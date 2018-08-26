@@ -3,6 +3,7 @@ package com.lakshya.wikisearch.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.lakshya.wikisearch.R;
 import com.lakshya.wikisearch.contract.WikiPageClickListener;
 import com.lakshya.wikisearch.model.WikiPageModel;
@@ -24,10 +24,10 @@ public class WikiAdapter extends RecyclerView.Adapter<WikiAdapter.WikiViewHolder
     private List<WikiPageModel> mWikiPageModelList = new ArrayList<>();
     private WikiPageClickListener mWikiPageClickListener;
 
-    public WikiAdapter(Context context, WikiPageClickListener wikiPageClickListener, List<WikiPageModel> wikiPageModels){
+    public WikiAdapter(Context context, WikiPageClickListener wikiPageClickListener, List<WikiPageModel> wikiPageModels) {
         mContext = context;
         mWikiPageClickListener = wikiPageClickListener;
-        mWikiPageModelList  = wikiPageModels;
+        mWikiPageModelList = wikiPageModels;
     }
 
     @NonNull
@@ -40,10 +40,10 @@ public class WikiAdapter extends RecyclerView.Adapter<WikiAdapter.WikiViewHolder
     @Override
     public void onBindViewHolder(@NonNull final WikiViewHolder wikiViewHolder, int position) {
         wikiViewHolder.mWikiTitle.setText(mWikiPageModelList.get(position).getWikiTitle());
-        if(mWikiPageModelList.get(position).getDescriptionModel() != null && mWikiPageModelList.get(position).getDescriptionModel().getWikiDesc() != null){
+        if (mWikiPageModelList.get(position).getDescriptionModel() != null && mWikiPageModelList.get(position).getDescriptionModel().getWikiDesc() != null) {
             wikiViewHolder.mWikiDesc.setText(mWikiPageModelList.get(position).getDescriptionModel().getWikiDesc().get(0));
         }
-        if(mWikiPageModelList.get(position).getThumbnailModel() != null){
+        if (mWikiPageModelList.get(position).getThumbnailModel() != null && !TextUtils.isEmpty(mWikiPageModelList.get(position).getThumbnailModel().getWikiImageUrl())) {
             Glide.with(mContext)
                     .load(mWikiPageModelList.get(position).getThumbnailModel().getWikiImageUrl())
                     .into(wikiViewHolder.mWikiImage);
@@ -56,13 +56,13 @@ public class WikiAdapter extends RecyclerView.Adapter<WikiAdapter.WikiViewHolder
         });
     }
 
-    public void setAdapterData(List<WikiPageModel> wikiPageModels){
+    public void setAdapterData(List<WikiPageModel> wikiPageModels) {
         mWikiPageModelList.clear();
         mWikiPageModelList = wikiPageModels;
         notifyDataSetChanged();
     }
 
-    public void removeAdapterData(){
+    public void removeAdapterData() {
         mWikiPageModelList.clear();
         notifyDataSetChanged();
     }
@@ -72,7 +72,7 @@ public class WikiAdapter extends RecyclerView.Adapter<WikiAdapter.WikiViewHolder
         return mWikiPageModelList.size();
     }
 
-    public class WikiViewHolder extends RecyclerView.ViewHolder{
+    public class WikiViewHolder extends RecyclerView.ViewHolder {
 
         private ViewGroup mLayoutContainer;
         private ImageView mWikiImage;

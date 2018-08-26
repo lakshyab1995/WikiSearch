@@ -1,26 +1,22 @@
 package com.lakshya.wikisearch.view;
 
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.lakshya.wikisearch.R;
+import com.lakshya.wikisearch.WikiUtility;
+import com.lakshya.wikisearch.WikiConstants;
 import com.lakshya.wikisearch.adapter.WikiAdapter;
 import com.lakshya.wikisearch.contract.CacheListener;
 import com.lakshya.wikisearch.contract.MainContract;
@@ -32,7 +28,7 @@ import com.lakshya.wikisearch.presenter.MainPresenter;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, UpdateListener, WikiPageClickListener, CacheListener{
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener, UpdateListener, WikiPageClickListener, CacheListener, View.OnTouchListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -51,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mMainContract.setUpdateListener(this);
         mWikiList.setLayoutManager(new LinearLayoutManager(this));
         mWikiList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mWikiList.setOnTouchListener(this);
         mCacheHelper = CacheHelper.with(this);
         mCacheHelper.setCacheListener(this);
         List<WikiPageModel> wikiPageModels = mCacheHelper.retrieveViewedWikiList();
@@ -65,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         menuInflater.inflate(R.menu.option_menu, menu);
         mSearchView = (SearchView) menu.findItem(R.id.search).getActionView();
         mSearchView.setOnQueryTextListener(this);
+        mSearchView.setQueryHint(getString(R.string.search_hint));
         return true;
     }
 
@@ -75,11 +73,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextChange(String wikiTitle) {
-        if(TextUtils.isEmpty(wikiTitle)){
+        if (TextUtils.isEmpty(wikiTitle)) {
             List<WikiPageModel> wikiPageModels = mCacheHelper.retrieveViewedWikiList();
             mWikiAdapter.setAdapterData(wikiPageModels);
-        }
-        else {
+        } else {
             mCacheHelper.retrieveData(wikiTitle);
         }
         return true;
@@ -101,12 +98,20 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void onCacheSuccess(List<WikiPageModel> wikiPageModelList) {
+        //Cache Hit, Fetching data from cache
         mWikiAdapter.setAdapterData(wikiPageModelList);
     }
 
     @Override
     public void onCacheFailure(String wikiTitle) {
+        //Cache Miss, fetching data from API
         mMainContract.fetchWikiPages(wikiTitle);
         //Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        WikiUtility.hideSoftKeyboard(this);
+        return false;
     }
 }

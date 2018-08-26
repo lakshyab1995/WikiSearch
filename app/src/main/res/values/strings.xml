@@ -2,4 +2,5 @@
     <string name="app_name">WikiSearch</string>
     <string name="search_title">Search Wiki</string>
     <string name="search_hint">Enter keyword to search</string>
+    <string name="text_placeholder">No Recent History Available</string>
 </resources>
